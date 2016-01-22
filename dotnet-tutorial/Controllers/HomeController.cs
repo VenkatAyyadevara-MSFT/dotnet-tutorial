@@ -135,18 +135,14 @@ namespace dotnet_tutorial.Controllers
 
                 client.Context.SendingRequest2 += new EventHandler<Microsoft.OData.Client.SendingRequest2EventArgs>(
                     (sender, e) => InsertXAnchorMailboxHeader(sender, e, email));
-
-                /** var eventResults = await client.Me.Events
-                                    .OrderByDescending(e => e.Start.DateTime)
-                                    .Take(10)
-                                    .Select(e => new Models.DisplayEvent(e.Subject, e.Start.DateTime, e.End.DateTime))
-                                    .ExecuteAsync(); */
+    
+                // Use calendar view to get meetings for the next N hours
                 var startDateTime = new DateTimeOffset(DateTime.Now);
-                var endDateTime = new DateTimeOffset(DateTime.Now.AddHours(+3));
+                var endDateTime = new DateTimeOffset(DateTime.Now.AddHours(+12));
                 var eventResults = await client.Me.GetCalendarView(startDateTime, endDateTime)
                                     .OrderByDescending(e => e.Start.DateTime)
                                     .Take(10)
-                                    .Select(e => new Models.DisplayEvent(e.Subject, e.Start.DateTime, e.End.DateTime))
+                                    .Select(e => new Models.DisplayEvent(e.Subject, e.Start.DateTime, e.End.DateTime, e.Location, e.Organizer))
                                     .ExecuteAsync();
 
                 return View(eventResults.CurrentPage);
